@@ -12,9 +12,17 @@ color yellow = #FFFF50;
 
 PImage map;
 PImage levi, francis;
+PImage[] run;
+PImage[] runleft;
+PImage[] idle;
+PImage[] jump;
+PImage[] currentAction;
+int costumeNum = 0;
+int frame = 0;
+
 int x = 0;
 int y = 0;
-int gridsize = 32;
+int gridsize = 40;
 float vx, vy, zoomfactor, angle;
 boolean upkey, downkey, leftkey, rightkey, wkey, akey, skey, dkey, qkey, ekey, spacekey;
 FBomb bomb = null;
@@ -31,52 +39,95 @@ void setup() {
   map = loadImage("map.png");
   levi = loadImage("Levi.png");
   francis = loadImage("francis.png");
+
+  run = new PImage[3];
+  runleft = new PImage[3];
+  idle = new PImage[1];
+  jump = new PImage[1];
+
+  run[0] = loadImage("hatsume1.png");
+  run[1] = loadImage("hatsume2.png");
+  run[2] = loadImage("hatsume3.png");
+
+  idle[0] = loadImage("hatsume4.png");
+
+  currentAction = idle;
+
   //load world
   while (y < map.height) {
-    color c = map.get(x, y);
-    
-    if(c == black) {
+    color c = map.get(x, y);    
+    if (c == black) {
       FBox b = new FBox(gridsize, gridsize);
       b.setFillColor(black);
       b.setPosition(x*gridsize, y*gridsize);
       b.setStatic(true);
       //b.setName("");
+      boxes.add(b);
       world.add(b);
     }
-    
+
     x++;
     if (x == map.width) {
       x = 0;
       y++;
     }
   }
-  
+
   player1();
 }
 
 void draw() {
   background(255);
-  
+
   pushMatrix();
   translate(-player1.getX() + width/2, -player1.getY() + height/2);
   world.step();
   world.draw();
   popMatrix();
-  
+
   //left, right movement
   vx = 0;
-  if(leftkey) vx = -500;
-  if(rightkey) vx = 500;
+  if (leftkey) { 
+    vx = -500;
+    currentAction = runleft;
+    costumeNum = 0;
+  }
+  if (rightkey) {
+    vx = 500;
+    currentAction = run;
+    costumeNum = 0;
+  }
   player1.setVelocity(vx, player1.getVelocityY());
-  
+
+  //idle
+  if (!leftkey && !rightkey) {
+    currentAction = idle;
+    costumeNum = 0;
+  }
+
   //jumping
   ArrayList<FContact> contacts = player1.getContacts();
-  if(upkey && contacts.size() > 0) player1.setVelocity(player1.getVelocityX(), -500);
+  if (upkey && contacts.size() > 0) player1.setVelocity(player1.getVelocityX(), -500);
   //if(contacts.contains(""))
   
+  player1.attachImage(currentAction[costumeNum]);
+   if(frameCount % 10 == 0) {
+    costumeNum++;
+    if(costumeNum == currentAction.length) costumeNum = 0;
+   }
+
+
   //drop bombs
-  if(spacekey && bomb == null) bomb = new FBomb();
-  if(bomb!= null) bomb.act();
+  if (spacekey && bomb == null) bomb = new FBomb();
+  if (bomb!= null) bomb.act();
+
+  //character test
+  image(run[frame], 50, 50);
+  if (frameCount % 10 == 0) {
+    frame++;
+    if (frame == 3) frame = 0;
+  }
+
 }
 
 void keyPressed() {

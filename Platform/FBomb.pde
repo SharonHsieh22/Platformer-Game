@@ -22,8 +22,8 @@ class FBomb extends FBox {
     for (int i = 0; i < boxes.size(); i++) {
       FBox b = boxes.get(i);
       if (dist(this.getX(), this.getY(), b.getX(), b.getY()) < 200) {
-        float vx = this.getX() - b.getX();
-        float vy = this.getY() - b.getY();
+        float vx = (b.getX() - this.getX())*5;
+        float vy = (b.getY() - this.getY())*5;
         b.setVelocity(vx, vy);
         b.setStatic(false);
         println("yes");
