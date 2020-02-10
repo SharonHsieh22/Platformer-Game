@@ -16,13 +16,14 @@ PImage[] run;
 PImage[] runleft;
 PImage[] idle;
 PImage[] jump;
+PImage[] jumpleft;
 PImage[] currentAction;
 int costumeNum = 0;
 int frame = 0;
 
 int x = 0;
 int y = 0;
-int gridsize = 40;
+int gridsize = 60;
 float vx, vy, zoomfactor, angle;
 boolean upkey, downkey, leftkey, rightkey, wkey, akey, skey, dkey, qkey, ekey, spacekey;
 FBomb bomb = null;
@@ -36,6 +37,7 @@ void setup() {
   fullScreen(FX2D);
   Fisica.init(this);
   world = new FWorld(-10000, -10000, 10000, 10000);
+  world.setGravity(0, 900);
   map = loadImage("map.png");
   levi = loadImage("Levi.png");
   francis = loadImage("francis.png");
@@ -44,10 +46,18 @@ void setup() {
   runleft = new PImage[3];
   idle = new PImage[1];
   jump = new PImage[1];
+  jumpleft = new PImage[1];
 
   run[0] = loadImage("hatsume1.png");
   run[1] = loadImage("hatsume2.png");
   run[2] = loadImage("hatsume3.png");
+  
+  runleft[0] = loadImage("hatsume5.png");
+  runleft[1] = loadImage("hatsume6.png");
+  runleft[2] = loadImage("hatsume7.png");
+  
+  jump[0] = loadImage("hatsume8.png");
+  jumpleft[0] = loadImage("hatsume9.png");
 
   idle[0] = loadImage("hatsume4.png");
 
@@ -90,24 +100,33 @@ void draw() {
   if (leftkey) { 
     vx = -500;
     currentAction = runleft;
-    costumeNum = 0;
   }
   if (rightkey) {
-    vx = 500;
+    vx = 500;    
     currentAction = run;
-    costumeNum = 0;
   }
   player1.setVelocity(vx, player1.getVelocityY());
 
   //idle
-  if (!leftkey && !rightkey) {
+  if (!leftkey && !rightkey) {    
     currentAction = idle;
     costumeNum = 0;
   }
 
   //jumping
   ArrayList<FContact> contacts = player1.getContacts();
-  if (upkey && contacts.size() > 0) player1.setVelocity(player1.getVelocityX(), -500);
+  if (upkey && contacts.size() > 0) {
+    player1.setVelocity(player1.getVelocityX(), -800);
+    
+  }
+  if(contacts.size() == 0) {
+    currentAction = jump;
+    costumeNum = 0;
+  } 
+  if(leftkey && contacts.size() == 0) {
+    currentAction = jumpleft;
+    costumeNum = 0;
+  }
   //if(contacts.contains(""))
   
   player1.attachImage(currentAction[costumeNum]);
